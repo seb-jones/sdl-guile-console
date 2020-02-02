@@ -44,6 +44,32 @@ void close_console()
     console.is_open = false;
 }
 
+SCM console_scheme_processor(void *arg)
+{
+    SCM result = scm_c_eval_string(console.input + 2);
+
+    console.output = scm_to_locale_string(
+        scm_object_to_string(
+            result,
+            SCM_UNDEFINED
+            )
+        );
+
+    return SCM_UNSPECIFIED;
+}
+
+SCM console_scheme_error_handler(void *arg, SCM key, SCM parameters)
+{
+    console.output = scm_to_locale_string(
+        scm_object_to_string(
+            key,
+            SCM_UNDEFINED
+            )
+        );
+
+    return SCM_UNSPECIFIED;
+}
+
 void update_console()
 {
     char *input_text = get_text_input();
@@ -54,17 +80,14 @@ void update_console()
     }
 
     int console_input_length = strlen(console.input);
-    if (key_just_down(backspace_key) && console_input_length > 2)
+    if (key_just_down(backspace_key) && console_input_length > 2) {
         console.input[console_input_length - 1] = '\0';
-    else if (key_just_down(okay_key)) {
-        SCM result = scm_c_eval_string(console.input + 2);
-
-        console.output = scm_to_locale_string(
-            scm_object_to_string(
-                result,
-                SCM_UNDEFINED
-                )
-            );
+    } else if (key_just_down(okay_key)) {
+        scm_c_catch(SCM_BOOL_T,
+                console_scheme_processor, 0,
+                console_scheme_error_handler, 0,
+                0, 0
+                );
 
         reset_console_input();
     }
