@@ -6,6 +6,7 @@
 #include <time.h>
 #include <string.h>
 
+#include <libguile.h>
 #include <SDL2/SDL.h>
 
 typedef Sint8  s8;
@@ -79,10 +80,8 @@ void toggle_fullscreen()
         SDL_SetWindowFullscreen(sdl.window, SDL_WINDOW_FULLSCREEN_DESKTOP);
 }
 
-int main(int argc, char **argv)
+int guile_main(void *arg)
 {
-    srand((unsigned int)time(0));
-
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) != 0)
         return log_sdl_error_and_cleanup_sdl("Unable to initialize SDL");
 
@@ -177,4 +176,11 @@ int main(int argc, char **argv)
     cleanup_sdl();
 
     return 0;
+}
+
+int main(int argc, char **argv)
+{
+    srand((unsigned int)time(0));
+
+    return (u64)scm_with_guile((void *(*)(void *))guile_main, 0);
 }

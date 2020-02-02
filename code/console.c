@@ -2,7 +2,8 @@ typedef struct Console
 {
     Font  *font;
     char  *input;
-    size_t size;
+    char  *output;
+    size_t input_size;
     bool   is_open;
 }
 Console;
@@ -12,8 +13,9 @@ Console console = {0};
 bool setup_console(Font *font)
 {
     console.font = font;
-    console.size = 1024;
-    console.input = malloc(console.size + 1);
+
+    console.input_size = 100;
+    console.input = malloc(console.input_size + 1);
     console.input[0] = '\0';
 
     return true;
@@ -55,11 +57,25 @@ void update_console()
     if (key_just_down(backspace_key) && console_input_length > 2)
         console.input[console_input_length - 1] = '\0';
     else if (key_just_down(okay_key)) {
+        SCM result = scm_c_eval_string(console.input + 2);
+
+        console.output = scm_to_locale_string(
+            scm_object_to_string(
+                result,
+                SCM_UNDEFINED
+                )
+            );
+
         reset_console_input();
     }
 
     draw_wrapped_string(console.font, console.input, 0, 0,
             render_width);
+
+    if (console.output) {
+        draw_wrapped_string(console.font, console.output,
+                0, console.font->glyph_height + 2, render_width);
+    }
 
     if (key_just_down(console_key))
         close_console();

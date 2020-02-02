@@ -2,7 +2,7 @@ CC=gcc
 
 CFLAGS=`pkgconf --cflags sdl2 guile-2.2`
 
-LIBS=`pkgconf --libs sdl2 guile-2.2`
+LIBS=`pkgconf --libs sdl2 guile-2.2` -lm
 
 OPTIONS=-Wall -g -O0
 
