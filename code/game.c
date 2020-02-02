@@ -7,7 +7,16 @@ bool setup_game()
     if (!font)
         return false;
 
+    if (!setup_console(font))
+        return false;
+
     return true;
+}
+
+void destroy_game()
+{
+    destroy_console();
+    destroy_font(font);
 }
 
 // Returns false when the program should end
@@ -16,12 +25,10 @@ bool update_game()
     if (key_just_down(quit_key))
         return false;
 
-    draw_string(font, "Hello", 10, 10);
+    if (console.is_open)
+        update_console(font);
+    else if (key_just_down(console_key))
+        open_console();
 
     return true;
-}
-
-void destroy_game()
-{
-    destroy_font(font);
 }

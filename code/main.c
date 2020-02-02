@@ -41,6 +41,7 @@ int render_height = 480;
 #include "render.c"
 #include "font.c"
 #include "sprite.c"
+#include "console.c"
 #include "game.c"
 
 void cleanup_sdl()
@@ -142,6 +143,8 @@ int main(int argc, char **argv)
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 running = false;
+            } else if (event.type == SDL_TEXTINPUT) {
+                strcpy(input.text, event.text.text);
             }
         }
 
